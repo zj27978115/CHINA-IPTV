@@ -182,7 +182,7 @@
         <td><a href="https://chinaiptv.pages.dev/Multicast/heilongjiang/mobile.txt">🛰️组播</a></td>
         <td><a href="https://chinaiptv.pages.dev/Unicast/heilongjiang/telecom.txt">🔗单播</a></td>
         <td><a href="https://chinaiptv.pages.dev/Multicast/heilongjiang/telecom.txt">🌐暂无</a></td>
-        <td>2020.02.27</td>
+        <td>2025.02.27</td>
     </tr>
     <tr>
         <td>河南</td>
