@@ -122,7 +122,7 @@
         <td><a href="https://chinaiptv.pages.dev/Multicast/gansu/mobile.txt">🌐暂无</a></td>
         <td><a href="https://chinaiptv.pages.dev/Unicast/gansu/telecom.txt">🔗单播</a></td>
         <td><a href="https://chinaiptv.pages.dev/Multicast/gansu/telecom.txt">🛰️组播</a></td>
-        <td>2024.12.01</td>
+        <td>2025.06.24</td>
     </tr>
     <tr>
         <td>广东</td>
