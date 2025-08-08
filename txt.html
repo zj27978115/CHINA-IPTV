@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M3U到TXT在线转换器</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#10b981',
+                        dark: '#1e293b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #f0f9ff, #e6f7ff);
+        }
+
+        .card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 16px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .header-gradient {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        }
+
+        .tab-btn {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid #3b82f6;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .result-box {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .result-box.active {
+            max-height: 500px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 250px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .loader {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(59, 130, 246, 0.2);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .channel-tag {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            background: #10b981;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            z-index: 100;
+            transform: translateX(110%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #ef4444;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+<div class="w-full max-w-4xl">
+    <div class="card overflow-hidden mb-8">
+        <div class="header-gradient py-6 px-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-bold text-white">M3U到TXT在线转换器</h1>
+                    <p class="text-blue-100 mt-2">快速转换直播源格式，支持URL参数直接转换</p>
+                </div>
+                <div class="flex-shrink-0">
+                    <span class="bg-white/20 text-white px-4 py-1.5 rounded-full font-medium">v2.0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-6 md:p-8">
+            <div class="flex border-b mb-6">
+                <button id="url-tab" class="tab-btn active px-4 py-2">URL转换</button>
+                <button id="file-tab" class="tab-btn px-4 py-2">文件上传</button>
+            </div>
+
+            <!-- URL转换面板 -->
+            <div id="url-tab-content">
+                <div class="mb-6">
+                    <label class="block text-gray-700 font-medium mb-2">M3U文件URL</label>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="m3u-url"
+                               placeholder="https://sub.ottiptv.cc/iptv.m3u"
+                               class="flex-grow p-3 border border-gray-300 rounded-lg text-sm">
+                        <button id="convert-url" class="bg-primary hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition flex items-center justify-center">
+                            <span>转换</span>
+                            <span id="convert-loader" class="ml-2 hidden"><div class="loader"></div></span>
+                        </button>
+                    </div>
+                    <p class="text-gray-500 text-sm mt-2">提示：您也可以通过URL参数直接转换，例如：<code class="bg-gray-100 px-2 py-1 rounded">https://chinaiptv.pages.dev/m3u_to_txt?url=https://sub.ottiptv.cc/iptv.m3u</code></p>
+                </div>
+
+                <div class="flex items-center mb-6">
+                    <input type="checkbox" id="keep-groups-url" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                    <label for="keep-groups-url" class="ml-2 text-gray-700">保留分组信息</label>
+                    <span class="ml-4 channel-tag"><span id="channel-count">0</span> 个频道</span>
+                </div>
+            </div>
+
+            <!-- 文件上传面板 -->
+            <div id="file-tab-content" class="hidden">
+                <form id="m3u-to-txt-form" class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">上传M3U文件</label>
+                        <div class="flex items-center">
+                            <label for="m3u-file" class="cursor-pointer bg-gray-50 border border-gray-300 rounded-l-lg px-4 py-3 whitespace-nowrap overflow-hidden flex-grow">
+                                <i class="fas fa-file-upload mr-2 text-blue-500"></i>
+                                <span id="m3u-file-name">选择文件...</span>
+                            </label>
+                            <input type="file" id="m3u-file" accept=".m3u" class="hidden">
+                            <button type="button" id="clear-m3u" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-3 rounded-r-lg transition">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" id="keep-groups-file" class="form-checkbox h-5 w-5 text-blue-600 rounded">
+                        <label for="keep-groups-file" class="ml-2 text-gray-700">保留分组信息</label>
+                    </div>
+
+                    <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white font-medium py-3 rounded-lg transition duration-200 flex items-center justify-center">
+                        <i class="fas fa-sync-alt mr-2"></i>转换格式
+                    </button>
+                </form>
+            </div>
+
+            <!-- 结果区域 -->
+            <div id="result-box" class="result-box bg-gray-50 rounded-lg border border-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-medium text-gray-800">转换结果：</h3>
+                    <div class="flex gap-2">
+                        <button id="copy-result" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition flex items-center">
+                            <i class="fas fa-copy mr-2"></i>复制
+                        </button>
+                        <button id="download-result" class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition flex items-center">
+                            <i class="fas fa-download mr-2"></i>下载
+                        </button>
+                    </div>
+                </div>
+                <textarea id="txt-result-content" class="w-full p-4 border border-gray-300 rounded-lg text-sm bg-white" readonly></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center text-gray-600 text-sm">
+        <p>© 2023 M3U到TXT转换工具 | 支持URL参数直接转换 | 无需下载立即使用</p>
+        <p class="mt-1">转换过程完全在浏览器中完成，您的文件不会被上传到服务器</p>
+    </div>
+</div>
+
+<div id="notification" class="notification">
+    <div class="flex items-center">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span id="notification-message">操作成功！</span>
+    </div>
+</div>
+
+<script>
+    // 解析M3U文件为TXT格式
+    function parseM3UToTXT(m3uContent, keepGroups) {
+        const lines = m3uContent.split('\n');
+        const channels = {};
+        let channelCount = 0;
+        let currentGroup = '未分组';
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (line.startsWith('#EXTINF:-1')) {
+                const groupMatch = line.match(/group-title="([^"]*)"/);
+                const nameMatch = line.match(/tvg-name="([^"]*)"/);
+                const group = groupMatch ? groupMatch[1] : currentGroup;
+                const name = nameMatch ? nameMatch[1] : line.split(',').pop();
+                const url = lines[i + 1] ? lines[i + 1].trim() : '';
+
+                if (url && url.length > 0) {
+                    if (!channels[group]) {
+                        channels[group] = [];
+                    }
+                    channels[group].push(`${name},${url}`);
+                    currentGroup = group;
+                    channelCount++;
+                }
+            }
+        }
+
+        let txtContent = '';
+        if (keepGroups) {
+            for (const [group, channelList] of Object.entries(channels)) {
+                txtContent += `${group},#genre#\n`;
+                txtContent += channelList.join('\n') + '\n\n';
+            }
+        } else {
+            for (const channelList of Object.values(channels)) {
+                txtContent += channelList.join('\n') + '\n';
+            }
+        }
+
+        return { content: txtContent.trim(), count: channelCount };
+    }
+
+    // 下载文件
+    function downloadFile(content, filename) {
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // 显示通知
+    function showNotification(message, isError = false) {
+        const notification = document.getElementById('notification');
+        const messageEl = document.getElementById('notification-message');
+
+        messageEl.textContent = message;
+        notification.className = 'notification';
+
+        if (isError) {
+            notification.classList.add('error');
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+        } else {
+            notification.classList.remove('error');
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+        }
+
+        notification.classList.add('show');
+
+        setTimeout(() => {
+            notification.classList.remove('show');
+        }, 3000);
+    }
+
+    // 切换标签页
+    function switchTab(tabName) {
+        if (tabName === 'url') {
+            document.getElementById('url-tab').classList.add('active');
+            document.getElementById('file-tab').classList.remove('active');
+            document.getElementById('url-tab-content').classList.remove('hidden');
+            document.getElementById('file-tab-content').classList.add('hidden');
+        } else {
+            document.getElementById('file-tab').classList.add('active');
+            document.getElementById('url-tab').classList.remove('active');
+            document.getElementById('file-tab-content').classList.remove('hidden');
+            document.getElementById('url-tab-content').classList.add('hidden');
+        }
+    }
+
+    // 显示转换结果
+    function showConversionResult(result) {
+        const resultBox = document.getElementById('result-box');
+        const txtContent = document.getElementById('txt-result-content');
+        const channelCount = document.getElementById('channel-count');
+
+        txtContent.value = result.content;
+        channelCount.textContent = result.count;
+        resultBox.classList.add('active');
+
+        // 滚动到结果区域
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        showNotification(`转换成功！共检测到 ${result.count} 个频道`);
+    }
+
+    // 从URL加载M3U文件
+    async function loadM3UFromUrl(url, keepGroups) {
+        const convertBtn = document.getElementById('convert-url');
+        const loader = document.getElementById('convert-loader');
+
+        try {
+            // 显示加载状态
+            convertBtn.disabled = true;
+            loader.classList.remove('hidden');
+
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`无法获取文件: ${response.status} ${response.statusText}`);
+            }
+
+            const m3uContent = await response.text();
+            const result = parseM3UToTXT(m3uContent, keepGroups);
+
+            showConversionResult(result);
+        } catch (error) {
+            console.error('加载M3U文件失败:', error);
+            showNotification(`错误: ${error.message}`, true);
+        } finally {
+            // 隐藏加载状态
+            convertBtn.disabled = false;
+            loader.classList.add('hidden');
+        }
+    }
+
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+        // 设置标签页切换事件
+        document.getElementById('url-tab').addEventListener('click', () => switchTab('url'));
+        document.getElementById('file-tab').addEventListener('click', () => switchTab('file'));
+
+        // 设置URL转换按钮事件
+        document.getElementById('convert-url').addEventListener('click', function() {
+            const url = document.getElementById('m3u-url').value.trim();
+            const keepGroups = document.getElementById('keep-groups-url').checked;
+
+            if (!url) {
+                showNotification('请输入M3U文件URL', true);
+                return;
+            }
+
+            loadM3UFromUrl(url, keepGroups);
+        });
+
+        // 设置文件上传相关事件
+        const m3uFileInput = document.getElementById('m3u-file');
+        const m3uFileName = document.getElementById('m3u-file-name');
+        const clearM3uBtn = document.getElementById('clear-m3u');
+
+        m3uFileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                m3uFileName.textContent = this.files[0].name;
+            } else {
+                m3uFileName.textContent = '选择文件...';
+            }
+        });
+
+        clearM3uBtn.addEventListener('click', function() {
+            m3uFileInput.value = '';
+            m3uFileName.textContent = '选择文件...';
+        });
+
+        // 设置文件上传表单提交事件
+        document.getElementById('m3u-to-txt-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const file = m3uFileInput.files[0];
+            if (!file) {
+                showNotification('请选择M3U文件', true);
+                return;
+            }
+
+            const reader = new FileReader();
+            const keepGroups = document.getElementById('keep-groups-file').checked;
+
+            reader.onload = function(e) {
+                const m3uContent = e.target.result;
+                const result = parseM3UToTXT(m3uContent, keepGroups);
+
+                showConversionResult(result);
+            };
+
+            reader.readAsText(file);
+        });
+
+        // 设置复制结果按钮事件
+        document.getElementById('copy-result').addEventListener('click', function() {
+            const textarea = document.getElementById('txt-result-content');
+            textarea.select();
+            document.execCommand('copy');
+            showNotification('内容已复制到剪贴板！');
+        });
+
+        // 设置下载结果按钮事件
+        document.getElementById('download-result').addEventListener('click', function() {
+            const txtContent = document.getElementById('txt-result-content').value;
+            if (!txtContent) {
+                showNotification('没有内容可供下载', true);
+                return;
+            }
+
+            const now = new Date();
+            const fileName = `直播源_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.txt`;
+
+            downloadFile(txtContent, fileName);
+            showNotification('文件已开始下载！');
+        });
+
+        // 检查URL参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const m3uUrl = urlParams.get('url');
+
+        if (m3uUrl) {
+            // 自动切换到URL标签页
+            switchTab('url');
+
+            // 填充URL输入框
+            document.getElementById('m3u-url').value = m3uUrl;
+
+            // 自动开始转换
+            setTimeout(() => {
+                document.getElementById('convert-url').click();
+            }, 500);
+        }
+    });
+</script>
+</body>
+</html>
