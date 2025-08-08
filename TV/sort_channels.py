@@ -23,7 +23,7 @@ def load_categories_from_moban():
 
 # ✅ 两个源地址
 urls = [
-    "https://chinaiptv.pages.dev/txt?url=https://sub.ottiptv.cc/iptv.m3u",
+    "https://fanmingming.com/txt?url=https://sub.ottiptv.cc/iptv.m3u",
     "https://fanmingming.com/txt?url=https://live.fanmingming.com/tv/m3u/ipv6.m3u"
 ]
 
