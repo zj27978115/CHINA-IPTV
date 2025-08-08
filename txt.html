@@ -3,77 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M3U到TXT在线转换器</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#3b82f6',
-                        secondary: '#10b981',
-                        dark: '#1e293b'
-                    }
-                }
-            }
-        }
-    </script>
+    <title>M3U转TXT结果</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            font-family: 'Noto Sans SC', sans-serif;
-            background: linear-gradient(135deg, #f0f9ff, #e6f7ff);
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
         }
 
-        .card {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border-radius: 16px;
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-            background: white;
         }
 
-        .header-gradient {
-            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        header {
+            background: linear-gradient(90deg, #2c3e50, #4a6491);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
         }
 
-        .tab-btn {
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .tab-btn.active {
-            border-bottom: 3px solid #3b82f6;
-            color: #3b82f6;
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .conversion-info {
+            background: #e3f2fd;
+            padding: 15px 20px;
+            border-bottom: 1px solid #bbdefb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .url-display {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.05);
+            padding: 8px 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: #bbdefb;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .stat-item i {
+            margin-right: 5px;
+            font-size: 1rem;
+        }
+
+        .result-container {
+            padding: 25px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .result-title {
+            font-size: 1.4rem;
+            color: #1a237e;
             font-weight: 600;
         }
 
-        .result-box {
-            max-height: 0;
-            overflow: hidden;
-            transition: all 0.5s ease;
+        .controls {
+            display: flex;
+            gap: 10px;
         }
 
-        .result-box.active {
-            max-height: 500px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn i {
+            margin-right: 6px;
+        }
+
+        .btn-copy {
+            background: #3f51b5;
+            color: white;
+        }
+
+        .btn-copy:hover {
+            background: #303f9f;
+            transform: translateY(-2px);
+        }
+
+        .btn-download {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-download:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+        }
+
+        .btn-home {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-home:hover {
+            background: #f57c00;
+            transform: translateY(-2px);
         }
 
         textarea {
+            width: 100%;
+            min-height: 400px;
+            padding: 20px;
+            border: 1px solid #bdbdbd;
+            border-radius: 10px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
             resize: vertical;
-            min-height: 250px;
-            font-family: 'Courier New', monospace;
+            background: #fafafa;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 50px;
+            text-align: center;
         }
 
         .loader {
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(59, 130, 246, 0.2);
-            border-top: 3px solid #3b82f6;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3f51b5;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-bottom: 20px;
         }
 
         @keyframes spin {
@@ -81,139 +203,158 @@
             100% { transform: rotate(360deg); }
         }
 
-        .channel-tag {
-            background: #dbeafe;
-            color: #1d4ed8;
-            border-radius: 9999px;
-            padding: 0.25rem 0.75rem;
-            font-size: 0.875rem;
+        .loading-text {
+            font-size: 1.2rem;
+            color: #3f51b5;
+            margin-bottom: 20px;
         }
 
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            background: #10b981;
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            z-index: 100;
-            transform: translateX(110%);
-            transition: transform 0.3s ease;
+        .error-container {
+            padding: 40px;
+            text-align: center;
+            background: #ffebee;
+            border-radius: 10px;
+            margin: 20px;
         }
 
-        .notification.show {
-            transform: translateX(0);
+        .error-icon {
+            font-size: 3rem;
+            color: #f44336;
+            margin-bottom: 20px;
         }
 
-        .notification.error {
-            background: #ef4444;
+        .error-title {
+            font-size: 1.5rem;
+            color: #d32f2f;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .conversion-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .url-display {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .stats {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .result-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .controls {
+                margin-top: 15px;
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats {
+                flex-wrap: wrap;
+            }
+
+            .stat-item {
+                margin-bottom: 5px;
+            }
+
+            .result-container {
+                padding: 15px;
+            }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
-<div class="w-full max-w-4xl">
-    <div class="card overflow-hidden mb-8">
-        <div class="header-gradient py-6 px-8">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 class="text-3xl font-bold text-white">M3U到TXT在线转换器</h1>
-                    <p class="text-blue-100 mt-2">快速转换直播源格式，支持URL参数直接转换</p>
-                </div>
-                <div class="flex-shrink-0">
-                    <span class="bg-white/20 text-white px-4 py-1.5 rounded-full font-medium">v2.0</span>
-                </div>
-            </div>
+<body>
+<div class="container">
+    <header>
+        <h1>M3U转TXT结果</h1>
+        <div class="subtitle">直播源格式转换 - 直接URL参数转换</div>
+    </header>
+
+    <div class="conversion-info">
+        <div class="url-display">
+            <i class="fas fa-link"></i>
+            <span id="source-url">正在加载源URL...</span>
         </div>
-
-        <div class="p-6 md:p-8">
-            <div class="flex border-b mb-6">
-                <button id="url-tab" class="tab-btn active px-4 py-2">URL转换</button>
-                <button id="file-tab" class="tab-btn px-4 py-2">文件上传</button>
+        <div class="stats">
+            <div class="stat-item">
+                <i class="fas fa-tv"></i>
+                <span id="channel-count">0</span> 个频道
             </div>
-
-            <!-- URL转换面板 -->
-            <div id="url-tab-content">
-                <div class="mb-6">
-                    <label class="block text-gray-700 font-medium mb-2">M3U文件URL</label>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="m3u-url"
-                               placeholder="https://sub.ottiptv.cc/iptv.m3u"
-                               class="flex-grow p-3 border border-gray-300 rounded-lg text-sm">
-                        <button id="convert-url" class="bg-primary hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition flex items-center justify-center">
-                            <span>转换</span>
-                            <span id="convert-loader" class="ml-2 hidden"><div class="loader"></div></span>
-                        </button>
-                    </div>
-                    <p class="text-gray-500 text-sm mt-2">提示：您也可以通过URL参数直接转换，例如：<code class="bg-gray-100 px-2 py-1 rounded">https://chinaiptv.pages.dev/m3u_to_txt?url=https://sub.ottiptv.cc/iptv.m3u</code></p>
-                </div>
-
-                <div class="flex items-center mb-6">
-                    <input type="checkbox" id="keep-groups-url" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                    <label for="keep-groups-url" class="ml-2 text-gray-700">保留分组信息</label>
-                    <span class="ml-4 channel-tag"><span id="channel-count">0</span> 个频道</span>
-                </div>
+            <div class="stat-item">
+                <i class="fas fa-layer-group"></i>
+                <span id="group-count">0</span> 个分组
             </div>
-
-            <!-- 文件上传面板 -->
-            <div id="file-tab-content" class="hidden">
-                <form id="m3u-to-txt-form" class="space-y-6">
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">上传M3U文件</label>
-                        <div class="flex items-center">
-                            <label for="m3u-file" class="cursor-pointer bg-gray-50 border border-gray-300 rounded-l-lg px-4 py-3 whitespace-nowrap overflow-hidden flex-grow">
-                                <i class="fas fa-file-upload mr-2 text-blue-500"></i>
-                                <span id="m3u-file-name">选择文件...</span>
-                            </label>
-                            <input type="file" id="m3u-file" accept=".m3u" class="hidden">
-                            <button type="button" id="clear-m3u" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-3 rounded-r-lg transition">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center">
-                        <input type="checkbox" id="keep-groups-file" class="form-checkbox h-5 w-5 text-blue-600 rounded">
-                        <label for="keep-groups-file" class="ml-2 text-gray-700">保留分组信息</label>
-                    </div>
-
-                    <button type="submit" class="w-full bg-primary hover:bg-blue-600 text-white font-medium py-3 rounded-lg transition duration-200 flex items-center justify-center">
-                        <i class="fas fa-sync-alt mr-2"></i>转换格式
-                    </button>
-                </form>
-            </div>
-
-            <!-- 结果区域 -->
-            <div id="result-box" class="result-box bg-gray-50 rounded-lg border border-gray-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-medium text-gray-800">转换结果：</h3>
-                    <div class="flex gap-2">
-                        <button id="copy-result" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition flex items-center">
-                            <i class="fas fa-copy mr-2"></i>复制
-                        </button>
-                        <button id="download-result" class="bg-primary hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition flex items-center">
-                            <i class="fas fa-download mr-2"></i>下载
-                        </button>
-                    </div>
-                </div>
-                <textarea id="txt-result-content" class="w-full p-4 border border-gray-300 rounded-lg text-sm bg-white" readonly></textarea>
+            <div class="stat-item">
+                <i class="fas fa-database"></i>
+                <span id="file-size">0KB</span>
             </div>
         </div>
     </div>
 
-    <div class="text-center text-gray-600 text-sm">
-        <p>© 2023 M3U到TXT转换工具 | 支持URL参数直接转换 | 无需下载立即使用</p>
-        <p class="mt-1">转换过程完全在浏览器中完成，您的文件不会被上传到服务器</p>
+    <div class="result-container">
+        <div class="result-header">
+            <div class="result-title">转换结果</div>
+            <div class="controls">
+                <button class="btn btn-copy" id="copy-btn">
+                    <i class="fas fa-copy"></i> 复制内容
+                </button>
+                <button class="btn btn-download" id="download-btn">
+                    <i class="fas fa-download"></i> 下载TXT
+                </button>
+                <button class="btn btn-home" onclick="location.href='/'">
+                    <i class="fas fa-home"></i> 返回首页
+                </button>
+            </div>
+        </div>
+
+        <div id="result-content">
+            <div class="loading-container">
+                <div class="loader"></div>
+                <div class="loading-text">正在转换M3U文件，请稍候...</div>
+                <p>转换过程可能需要几秒钟时间，取决于文件大小</p>
+            </div>
+        </div>
     </div>
 </div>
 
-<div id="notification" class="notification">
-    <div class="flex items-center">
-        <i class="fas fa-check-circle mr-2"></i>
-        <span id="notification-message">操作成功！</span>
-    </div>
-</div>
+<footer>
+    © 2023 直播源转换工具 | 支持URL参数直接转换 | https://chinaiptv.pages.dev
+</footer>
 
 <script>
     // 解析M3U文件为TXT格式
@@ -222,6 +363,7 @@
         const channels = {};
         let channelCount = 0;
         let currentGroup = '未分组';
+        const groups = new Set();
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
@@ -239,6 +381,7 @@
                     channels[group].push(`${name},${url}`);
                     currentGroup = group;
                     channelCount++;
+                    groups.add(group);
                 }
             }
         }
@@ -255,212 +398,113 @@
             }
         }
 
-        return { content: txtContent.trim(), count: channelCount };
-    }
-
-    // 下载文件
-    function downloadFile(content, filename) {
-        const blob = new Blob([content], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    // 显示通知
-    function showNotification(message, isError = false) {
-        const notification = document.getElementById('notification');
-        const messageEl = document.getElementById('notification-message');
-
-        messageEl.textContent = message;
-        notification.className = 'notification';
-
-        if (isError) {
-            notification.classList.add('error');
-            notification.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas fa-exclamation-circle mr-2"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-        } else {
-            notification.classList.remove('error');
-            notification.innerHTML = `
-                <div class="flex items-center">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    <span>${message}</span>
-                </div>
-            `;
-        }
-
-        notification.classList.add('show');
-
-        setTimeout(() => {
-            notification.classList.remove('show');
-        }, 3000);
-    }
-
-    // 切换标签页
-    function switchTab(tabName) {
-        if (tabName === 'url') {
-            document.getElementById('url-tab').classList.add('active');
-            document.getElementById('file-tab').classList.remove('active');
-            document.getElementById('url-tab-content').classList.remove('hidden');
-            document.getElementById('file-tab-content').classList.add('hidden');
-        } else {
-            document.getElementById('file-tab').classList.add('active');
-            document.getElementById('url-tab').classList.remove('active');
-            document.getElementById('file-tab-content').classList.remove('hidden');
-            document.getElementById('url-tab-content').classList.add('hidden');
-        }
+        return {
+            content: txtContent.trim(),
+            count: channelCount,
+            groups: groups.size
+        };
     }
 
     // 显示转换结果
-    function showConversionResult(result) {
-        const resultBox = document.getElementById('result-box');
-        const txtContent = document.getElementById('txt-result-content');
-        const channelCount = document.getElementById('channel-count');
+    function showResult(content, channelCount, groupCount) {
+        const resultContent = document.getElementById('result-content');
+        const fileSize = Math.round(content.length / 1024 * 100) / 100;
 
-        txtContent.value = result.content;
-        channelCount.textContent = result.count;
-        resultBox.classList.add('active');
+        resultContent.innerHTML = `
+            <textarea id="txt-result" readonly>${content}</textarea>
+        `;
 
-        // 滚动到结果区域
-        resultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-        showNotification(`转换成功！共检测到 ${result.count} 个频道`);
+        document.getElementById('channel-count').textContent = channelCount;
+        document.getElementById('group-count').textContent = groupCount;
+        document.getElementById('file-size').textContent = `${fileSize}KB`;
     }
 
-    // 从URL加载M3U文件
-    async function loadM3UFromUrl(url, keepGroups) {
-        const convertBtn = document.getElementById('convert-url');
-        const loader = document.getElementById('convert-loader');
+    // 显示错误信息
+    function showError(message) {
+        const resultContent = document.getElementById('result-content');
+        resultContent.innerHTML = `
+            <div class="error-container">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 class="error-title">转换失败</h2>
+                <p class="error-message">${message}</p>
+                <button class="btn btn-home" onclick="location.href='/'">
+                    <i class="fas fa-home"></i> 返回首页
+                </button>
+            </div>
+        `;
+    }
+
+    // 获取URL参数
+    function getQueryParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', async function() {
+        const m3uUrl = getQueryParam('url');
+
+        if (!m3uUrl) {
+            showError('URL参数中未提供M3U文件地址，请使用格式: /txt?url=您的M3U文件URL');
+            return;
+        }
+
+        // 显示源URL
+        document.getElementById('source-url').textContent = m3uUrl;
 
         try {
-            // 显示加载状态
-            convertBtn.disabled = true;
-            loader.classList.remove('hidden');
-
-            const response = await fetch(url);
+            // 获取M3U文件内容
+            const response = await fetch(m3uUrl);
             if (!response.ok) {
                 throw new Error(`无法获取文件: ${response.status} ${response.statusText}`);
             }
 
             const m3uContent = await response.text();
-            const result = parseM3UToTXT(m3uContent, keepGroups);
 
-            showConversionResult(result);
+            // 解析为TXT格式
+            const result = parseM3UToTXT(m3uContent, true);
+
+            // 显示结果
+            showResult(result.content, result.count, result.groups);
         } catch (error) {
-            console.error('加载M3U文件失败:', error);
-            showNotification(`错误: ${error.message}`, true);
-        } finally {
-            // 隐藏加载状态
-            convertBtn.disabled = false;
-            loader.classList.add('hidden');
+            console.error('转换失败:', error);
+            showError(`转换过程中出错: ${error.message}`);
         }
-    }
+    });
 
-    // 页面加载完成后执行
-    document.addEventListener('DOMContentLoaded', function() {
-        // 设置标签页切换事件
-        document.getElementById('url-tab').addEventListener('click', () => switchTab('url'));
-        document.getElementById('file-tab').addEventListener('click', () => switchTab('file'));
-
-        // 设置URL转换按钮事件
-        document.getElementById('convert-url').addEventListener('click', function() {
-            const url = document.getElementById('m3u-url').value.trim();
-            const keepGroups = document.getElementById('keep-groups-url').checked;
-
-            if (!url) {
-                showNotification('请输入M3U文件URL', true);
-                return;
-            }
-
-            loadM3UFromUrl(url, keepGroups);
-        });
-
-        // 设置文件上传相关事件
-        const m3uFileInput = document.getElementById('m3u-file');
-        const m3uFileName = document.getElementById('m3u-file-name');
-        const clearM3uBtn = document.getElementById('clear-m3u');
-
-        m3uFileInput.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                m3uFileName.textContent = this.files[0].name;
-            } else {
-                m3uFileName.textContent = '选择文件...';
-            }
-        });
-
-        clearM3uBtn.addEventListener('click', function() {
-            m3uFileInput.value = '';
-            m3uFileName.textContent = '选择文件...';
-        });
-
-        // 设置文件上传表单提交事件
-        document.getElementById('m3u-to-txt-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const file = m3uFileInput.files[0];
-            if (!file) {
-                showNotification('请选择M3U文件', true);
-                return;
-            }
-
-            const reader = new FileReader();
-            const keepGroups = document.getElementById('keep-groups-file').checked;
-
-            reader.onload = function(e) {
-                const m3uContent = e.target.result;
-                const result = parseM3UToTXT(m3uContent, keepGroups);
-
-                showConversionResult(result);
-            };
-
-            reader.readAsText(file);
-        });
-
-        // 设置复制结果按钮事件
-        document.getElementById('copy-result').addEventListener('click', function() {
-            const textarea = document.getElementById('txt-result-content');
+    // 复制结果
+    document.getElementById('copy-btn').addEventListener('click', function() {
+        const textarea = document.getElementById('txt-result');
+        if (textarea) {
             textarea.select();
             document.execCommand('copy');
-            showNotification('内容已复制到剪贴板！');
-        });
 
-        // 设置下载结果按钮事件
-        document.getElementById('download-result').addEventListener('click', function() {
-            const txtContent = document.getElementById('txt-result-content').value;
-            if (!txtContent) {
-                showNotification('没有内容可供下载', true);
-                return;
-            }
+            // 显示复制成功反馈
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check"></i> 已复制';
 
-            const now = new Date();
-            const fileName = `直播源_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.txt`;
-
-            downloadFile(txtContent, fileName);
-            showNotification('文件已开始下载！');
-        });
-
-        // 检查URL参数
-        const urlParams = new URLSearchParams(window.location.search);
-        const m3uUrl = urlParams.get('url');
-
-        if (m3uUrl) {
-            // 自动切换到URL标签页
-            switchTab('url');
-
-            // 填充URL输入框
-            document.getElementById('m3u-url').value = m3uUrl;
-
-            // 自动开始转换
             setTimeout(() => {
-                document.getElementById('convert-url').click();
-            }, 500);
+                this.innerHTML = originalText;
+            }, 2000);
+        }
+    });
+
+    // 下载结果
+    document.getElementById('download-btn').addEventListener('click', function() {
+        const textarea = document.getElementById('txt-result');
+        if (textarea && textarea.value) {
+            const blob = new Blob([textarea.value], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `直播源_${new Date().toISOString().slice(0, 10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
     });
 </script>
