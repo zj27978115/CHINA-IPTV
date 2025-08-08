@@ -58,8 +58,27 @@ def fetch_m3u_content(url):
         print(f"处理内容时出错: {e}")
         return ""
 
+def load_channel_mapping():
+    """加载频道名称映射表"""
+    mapping = {}
+    mapping_path = "TV/channel_mapping.txt"
+    if not os.path.exists(mapping_path):
+        return mapping
+
+    try:
+        with open(mapping_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or "," not in line:
+                    continue
+                old_name, new_name = line.split(",", 1)
+                mapping[old_name.strip()] = new_name.strip()
+    except Exception as e:
+        print(f"加载映射表失败: {e}")
+    return mapping
+
 def parse_m3u_to_txt(m3u_content):
-    """解析M3U内容为TXT格式"""
+    mapping = load_channel_mapping()
     lines = m3u_content.split('\n')
     channels = {}
     current_group = '未分组'
@@ -67,19 +86,15 @@ def parse_m3u_to_txt(m3u_content):
     for i in range(len(lines)):
         line = lines[i].strip()
         if line.startswith('#EXTINF:-1'):
-            # 提取分组信息
             group_match = re.search(r'group-title="([^"]*)"', line)
             group = group_match.group(1) if group_match else current_group
 
-            # 提取频道名称
             name_match = re.search(r'tvg-name="([^"]*)"', line)
-            if name_match:
-                name = name_match.group(1)
-            else:
-                # 从逗号后提取名称
-                name = line.split(',')[-1] if ',' in line else f'频道{i}'
+            name = name_match.group(1) if name_match else line.split(',')[-1].strip()
 
-            # 获取URL
+            # 使用映射表标准化名称
+            name = mapping.get(name, name)
+
             if i + 1 < len(lines):
                 url = lines[i + 1].strip()
                 if url and not url.startswith('#'):
@@ -88,12 +103,10 @@ def parse_m3u_to_txt(m3u_content):
                     channels[group].append(f"{name},{url}")
                     current_group = group
 
-    # 构建TXT内容
     txt_content = ""
     for group, channel_list in channels.items():
         txt_content += f"{group},#genre#\n"
         txt_content += "\n".join(channel_list) + "\n\n"
-
     return txt_content.strip()
 
 def main():
